@@ -3,27 +3,37 @@ import { config } from '../config.js';
 import { useUI } from '../context/UIContext.jsx';
 import { useClock } from '../hooks/useClock.js';
 import { mailtoHref, resolveProvider, sendEnquiry } from '../lib/mailer.js';
+import { COUNTRIES, DEFAULT_COUNTRY, findCountry } from '../data/countries.js';
 import SplitText from '../components/SplitText.jsx';
 import StageHead from '../components/StageHead.jsx';
 
-const EMPTY = { name: '', email: '', subject: '', message: '', company: '' };
+const EMPTY = { name: '', email: '', country: DEFAULT_COUNTRY, phone: '', subject: '', message: '', company: '' };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function validate(v) {
   const e = {};
   if (v.name.trim().length < 2) e.name = 'Tell me who you are (2+ characters).';
   if (!EMAIL_RE.test(v.email.trim())) e.email = 'That email doesn’t look right.';
+  const digits = v.phone.replace(/\D/g, '');
+  if (v.phone.trim() && (!/^[\d\s()-]+$/.test(v.phone.trim()) || digits.length < 6 || digits.length > 14)) e.phone = 'Digits only, please (6–14).';
   if (v.subject.trim().length < 3) e.subject = 'Give it a short title (3+ characters).';
   if (v.message.trim().length < 20) e.message = 'A little more detail, please (20+ characters).';
   if (v.message.length > 5000) e.message = 'Please keep it under 5,000 characters.';
   return e;
 }
 
-function Field({ id, label, error, children }) {
+/** Turns the form values into what gets emailed — the phone number is appended to the message. */
+function toPayload(v) {
+  const phone = v.phone.trim();
+  const contact = phone ? `\n\nContact me at ${findCountry(v.country).dial} ${phone}` : '';
+  return { name: v.name.trim(), email: v.email.trim(), subject: v.subject.trim(), message: v.message.trim() + contact };
+}
+
+function Field({ id, label, error, optional, children }) {
   return (
     <div className={`field ${error ? 'is-invalid' : ''}`}>
       <label htmlFor={id}>
-        <span>{label} <span className="req" aria-hidden="true">*</span></span>
+        <span>{label} {optional ? <span className="opt">(optional)</span> : <span className="req" aria-hidden="true">*</span>}</span>
       </label>
       {children}
       <span className="field__err" id={`${id}-err`} aria-live="polite">{error}</span>
@@ -55,7 +65,7 @@ function EnquiryForm() {
     e.preventDefault();
     const errs = validate(values);
     setErrors(errs);
-    setTouched({ name: true, email: true, subject: true, message: true });
+    setTouched({ name: true, email: true, phone: true, subject: true, message: true });
     if (Object.keys(errs).length) {
       document.getElementById(`f-${Object.keys(errs)[0]}`)?.focus();
       return;
@@ -63,8 +73,7 @@ function EnquiryForm() {
     if (values.company) { setStatus('sent'); return; } // honeypot: quietly drop bots
     setStatus('sending');
     try {
-      const payload = { name: values.name.trim(), email: values.email.trim(), subject: values.subject.trim(), message: values.message.trim() };
-      const { mode } = await sendEnquiry(payload);
+      const { mode } = await sendEnquiry(toPayload(values));
       setStatus(mode === 'mailto' ? 'mailto' : 'sent');
       if (mode !== 'mailto') { setValues(EMPTY); setTouched({}); }
     } catch (err) {
@@ -92,6 +101,16 @@ function EnquiryForm() {
             <input id="f-email" name="email" type="email" autoComplete="email" inputMode="email" placeholder="you@company.com" value={values.email} onChange={set('email')} onBlur={blur('email')} maxLength={200} {...aria('email')} />
           </Field>
         </div>
+        <Field id="f-phone" label="mobile" error={touched.phone && errors.phone} optional>
+          <div className="phone">
+            <select aria-label="Country calling code" name="country" value={values.country} onChange={set('country')}>
+              {COUNTRIES.map((c) => (
+                <option key={c.iso} value={c.iso}>{c.flag} {c.dial} {c.name}</option>
+              ))}
+            </select>
+            <input id="f-phone" name="phone" type="tel" autoComplete="tel-national" inputMode="tel" placeholder="79939 56446" value={values.phone} onChange={set('phone')} onBlur={blur('phone')} maxLength={20} aria-invalid={!!errors.phone} aria-describedby="f-phone-err" />
+          </div>
+        </Field>
         <Field id="f-subject" label="title / subject" error={touched.subject && errors.subject}>
           <input id="f-subject" name="subject" placeholder="feat: let’s build a healthcare dashboard" value={values.subject} onChange={set('subject')} onBlur={blur('subject')} maxLength={160} {...aria('subject')} />
         </Field>
@@ -142,7 +161,7 @@ function EnquiryForm() {
           <h4>✗ That didn’t go through.</h4>
           <p>
             {errorMsg.replace(/\.?$/, '.')} Your message is still here — try again, or{' '}
-            <a href={mailtoHref(values)}>send it from your email app</a>.
+            <a href={mailtoHref(toPayload(values))}>send it from your email app</a>.
           </p>
         </div>
       )}

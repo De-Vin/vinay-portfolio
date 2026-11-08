@@ -444,13 +444,17 @@
 .field { display: grid; gap: 8px; }
 .field label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--mute); display: flex; justify-content: space-between; }
 .field label .req { color: var(--signal); }
-.field input, .field textarea {
+.field label .opt { color: var(--mute-2); }
+.field input, .field textarea, .field select {
   width: 100%; background: var(--ink); border: 1px solid var(--line-2); padding: 13px 14px; font-size: 1rem; outline: none; border-radius: 0;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 .field textarea { min-height: 170px; resize: vertical; line-height: 1.5; font-family: var(--font-mono); font-size: 0.9rem; }
 .field input::placeholder, .field textarea::placeholder { color: var(--mute-2); }
-.field input:focus, .field textarea:focus { border-color: var(--select); box-shadow: 0 0 0 3px var(--select-soft); }
+.phone { display: grid; grid-template-columns: 8.5rem 1fr; gap: 8px; }
+.field select { font-family: var(--font-mono); font-size: 0.85rem; color: inherit; text-overflow: ellipsis; cursor: pointer; }
+.field select option { background: var(--ink-1); color: var(--paper); }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--select); box-shadow: 0 0 0 3px var(--select-soft); }
 .field.is-invalid input, .field.is-invalid textarea { border-color: var(--signal); }
 .field__err { min-height: 1em; font-family: var(--font-mono); font-size: 0.68rem; color: var(--signal); }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
