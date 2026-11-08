@@ -35,7 +35,7 @@ export const config = {
    * If the chosen provider is missing its keys, the form falls back to mailto automatically.
    */
   contact: {
-    provider: env.VITE_CONTACT_PROVIDER || 'formspree',
+    provider: env.VITE_CONTACT_PROVIDER || 'emailjs',
     formspree: { formId: env.VITE_FORMSPREE_ID || '' },
     emailjs: {
       serviceId: env.VITE_EMAILJS_SERVICE_ID || '',

@@ -3,7 +3,7 @@
 [![Deploy to GitHub Pages](https://github.com/De-Vin/vinay-portfolio/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/De-Vin/vinay-portfolio/actions/workflows/deploy-pages.yml)
 ![React 19](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![Vite 7](https://img.shields.io/badge/Vite-7-646cff?logo=vite&logoColor=white)
-![Node 20.19+](https://img.shields.io/badge/Node-20.19%2B-339933?logo=node.js&logoColor=white)
+![Node 24+](https://img.shields.io/badge/Node-24%2B-339933?logo=node.js&logoColor=white)
 
 The portfolio of **Vinay Avvaru**, Software Engineer based in Hyderabad, India. It's built with React 19 and Vite 7, uses no UI framework and no templates, and has just two runtime dependencies (`react`, `react-dom`).
 
@@ -66,33 +66,17 @@ The top bar is a live pipeline. The stage you're reading is `running` and earlie
 
 ## Run it locally
 
-Requires **Node 20.19+** (Node 22 recommended — there's an `.nvmrc`).
+Requires **Node 24+** (pinned in `.nvmrc`).
 
 ```bash
 git clone https://github.com/De-Vin/vinay-portfolio.git
 cd vinay-portfolio
 nvm use
-```
-
-```bash
 npm install
+npm run dev        # http://localhost:5173
 ```
 
-```bash
-npm run dev
-```
-
-The dev server runs at http://localhost:5173. Other scripts:
-
-```bash
-npm run build
-```
-
-```bash
-npm run preview
-```
-
-`build` writes the static site to `dist/`. `preview` serves that production build locally.
+`npm run build` writes the static site to `dist/`, and `npm run preview` serves that build locally.
 
 ---
 
@@ -105,86 +89,52 @@ npm run preview
 - **Personal details and links.** These live in [`src/config.js`](src/config.js). Set `showPhone: true` to list your phone number.
 - **Resume.** Replace `public/resume/Vinay_Avvaru_Software_Engineer.pdf` (keep the name, or update `config.links.resume`).
 
-The resume has no databases or state-management libraries, so those categories aren't shown. To add them, add a group to `skills`.
-
 ---
 
-## Enquiry form: setting up email delivery
+## Contact form (EmailJS)
 
-A browser cannot send email by itself. The form posts to a third-party form service, and that service emails you. The code supports two services plus a fallback, with no SDKs installed (both are called with `fetch`):
+The enquiry form sends email through [EmailJS](https://www.emailjs.com), called directly with `fetch` (no SDK). It asks for name, email, an optional **mobile number** with a country-code selector, subject and message. If a mobile number is given, it is appended to the message as `Contact me at +91 79939 56446`.
 
-| Provider | Free tier | What you need |
-|---|---|---|
-| **Formspree** (recommended, simplest) | 50 submissions/month | one Form ID |
-| **EmailJS** | 200 emails/month | Service ID, Template ID, Public Key |
-| **mailto** (fallback) | — | nothing; it opens the visitor's email app with the message prefilled |
+### Setup
 
-**If no provider is configured, the form automatically uses mailto.** (`config.js` defaults the provider to `formspree`, but with no Form ID set it falls back to mailto.) That's the state it ships in, so the form works from day one. The button reads "Open in email app" and the success message says so honestly.
-
-### Option A: Formspree
-
-1. Sign up at https://formspree.io and create a **New Form**, sending to `saivinai9050@gmail.com`.
-2. Copy the form ID from the endpoint `https://formspree.io/f/xxxxabcd`. The ID is `xxxxabcd`.
-3. Create a `.env` file in the project root:
-   ```
-   VITE_CONTACT_PROVIDER=formspree
-   VITE_FORMSPREE_ID=xxxxabcd
-   ```
-4. Restart `npm run dev`. The button changes to **Create pull request**.
-5. Send a test message. Formspree asks you to confirm the first submission by email.
-6. Recommended: in the Formspree form settings, restrict submissions to your domain.
-
-### Option B: EmailJS
-
-1. Sign up at https://www.emailjs.com.
-2. Go to **Email Services**, add Gmail (or another service) and copy the **Service ID**.
-3. Go to **Email Templates** and create a template. Copy its **Template ID**. The template must use these variables:
+1. In EmailJS, add an **Email Service** (e.g. Gmail) and copy its **Service ID**.
+2. Create an **Email Template** and copy its **Template ID**. Use these variables:
+   - To Email: `saivinai9050@gmail.com`
    - Subject: `[Portfolio] {{subject}}`
-   - Body: `From: {{from_name}} <{{reply_to}}>` followed by `{{message}}`
-   - Reply-To: `{{reply_to}}`
-4. Go to **Account → General** and copy the **Public Key**.
-5. Create a `.env` file:
+   - Body: `From: {{from_name}} ({{reply_to}})` followed by `{{message}}`
+   - Reply To: `{{reply_to}}`
+3. Copy the **Public Key** from **Account → General**.
+4. Create a `.env` in the project root (it's gitignored; see [`.env.example`](.env.example)) and restart `npm run dev`:
    ```
    VITE_CONTACT_PROVIDER=emailjs
    VITE_EMAILJS_SERVICE_ID=service_xxx
    VITE_EMAILJS_TEMPLATE_ID=template_xxx
    VITE_EMAILJS_PUBLIC_KEY=xxxxxxxx
    ```
-6. Recommended: under **Account → Security**, add your domain to the allowed origins.
+5. Recommended: under **Account → Security**, restrict requests to the site's domain.
 
-You can also put these values straight into `src/config.js` instead of `.env`. They are **public by design**: a Formspree ID and an EmailJS public key ship to every visitor's browser. Abuse protection comes from the domain restrictions above and the form's built-in honeypot field.
+These values are **public by design**: they ship to every visitor's browser. Abuse protection comes from the domain restriction and the form's hidden honeypot field.
 
-**What the form does:** it validates inline (on blur and on submit) and moves focus to the first invalid field. While sending, it shows a "Running checks…" loading state. Delivery times out after 15 seconds. On failure it shows an error that keeps the message and offers a prefilled mailto link. A hidden honeypot field quietly drops bots. Status messages use `aria-live`.
+If any EmailJS value is missing, the form falls back to **mailto**: it opens the visitor's email app with the message prefilled.
+
+**Form behaviour:** inline validation (on blur and on submit) with focus moved to the first invalid field, a "Running checks…" loading state, a 15-second timeout, and an error message that keeps what was typed and offers a prefilled mailto link. Status messages use `aria-live`.
 
 ---
 
-## Deploying
+## Deploying (GitHub Pages)
 
-It builds to a static `dist/` folder, so any static host works.
+The site deploys to **https://de-vin.github.io/vinay-portfolio/** through [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) on every push to `main`.
 
-### Vercel
-Import the repo at https://vercel.com/new. Vite is detected automatically (build `npm run build`, output `dist`). Add the `VITE_…` form variables under **Settings → Environment Variables**.
+1. **Settings → Pages → Source:** choose **GitHub Actions**.
+2. **Settings → Secrets and variables → Actions → Variables:** add `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID` and `VITE_EMAILJS_PUBLIC_KEY`.
+3. Push to `main`, or run the workflow manually. It builds with `BASE_PATH=/vinay-portfolio/`; change that to `/` if you add a custom domain.
 
-### Netlify
-Go to **Add new site → Import from Git**. Use build command `npm run build` and publish directory `dist`. Add the `VITE_…` variables under **Site configuration → Environment variables**.
-
-### Cloudflare Pages
-Use framework preset **Vite** (build `npm run build`, output `dist`), and add the `VITE_…` variables.
-
-### GitHub Pages (current setup, workflow included)
-This repo deploys to **https://de-vin.github.io/vinay-portfolio/**.
-
-1. Go to **Settings → Pages → Source** and choose **GitHub Actions**.
-2. Under **Settings → Secrets and variables → Actions → Variables**, add `VITE_FORMSPREE_ID` (or the EmailJS variables).
-3. Push to `main` (or run the workflow manually). [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) builds with `BASE_PATH=/vinay-portfolio/` (taken from the repo name) and publishes the site.
-
-If you use a custom domain on Pages, change `BASE_PATH` in the workflow to `/`.
+The build is a static `dist/` folder, so any other static host also works with the same `VITE_…` variables.
 
 ### Before going live
-- [ ] Replace the placeholder `https://vinay-avvaru.dev` with the real URL (e.g. `https://de-vin.github.io/vinay-portfolio/` or a custom domain) in `src/config.js`, `index.html` (canonical, Open Graph, JSON-LD), `public/robots.txt` and `public/sitemap.xml`.
-- [ ] Configure Formspree or EmailJS, then send yourself a test enquiry.
+- [ ] Replace the placeholder `https://vinay-avvaru.dev` with the real URL in `src/config.js`, `index.html` (canonical, Open Graph, JSON-LD), `public/robots.txt` and `public/sitemap.xml`.
+- [ ] Add the EmailJS variables and send yourself a test enquiry.
 - [ ] Add live or GitHub links to any projects that have public versions.
-- [ ] Optional: regenerate `public/og-image.png` (1200×630) if you change the hero.
 
 ---
 
@@ -192,11 +142,12 @@ If you use a custom domain on Pages, change `BASE_PATH` in the workflow to `/`.
 
 ```
 src/
-  config.js              ← links, email, form provider (edit to go live)
+  config.js              ← links, email, EmailJS keys (from .env)
   data/content.js        ← every word on the site, from the resume
+  data/countries.js      ← country calling codes for the mobile field
   context/UIContext.jsx  ← stage tracking, case file, palette, inspect, toast
   hooks/                 ← reveal observer, stage tracker, focus trap, magnetic, clock
-  lib/                   ← mailer (Formspree / EmailJS / mailto), utils
+  lib/                   ← mailer (EmailJS, mailto fallback), utils
   components/            ← Boot, TopBar, CommandPalette, CaseDrawer, Inspector, Mock (SVG sketches), SplitText…
   sections/              ← Hero (+ HeroField canvas), Story, Arsenal, Builds, Deploys, Philosophy, Contact
   styles/                ← tokens, base, chrome (site UI), sections
@@ -205,7 +156,7 @@ public/                  ← resume PDF, favicon, OG image, robots, sitemap
 
 ## Quality notes
 
-- **Performance.** There's one shared `IntersectionObserver` for every reveal. The hero canvas only redraws while the pointer moves and only while it's visible, and its pixel ratio is capped at 2. Scroll handlers are throttled with `requestAnimationFrame`. Animations use `transform`/`opacity` only. The production JS bundle is about 91 KB gzipped.
+- **Performance.** There's one shared `IntersectionObserver` for every reveal. The hero canvas only redraws while the pointer moves and only while it's visible, and its pixel ratio is capped at 2. Scroll handlers are throttled with `requestAnimationFrame`. Animations use `transform`/`opacity` only. The production JS bundle is about 94 KB gzipped.
 - **Accessibility.** The site has semantic landmarks and a skip link. Dialogs (case file, palette) trap focus, close with Esc and return focus to what opened them. Everything works from the keyboard. Split-text headings expose their plain text to screen readers. Under `prefers-reduced-motion`, all motion is disabled and the boot sequence is skipped.
 - **SEO.** The page has a title and description, canonical URL, Open Graph and Twitter cards, `Person` JSON-LD, robots.txt, a sitemap and a `<noscript>` summary.
 - **Responsive.** Tested at 390, 1024, 1200 and 1440 px wide with no horizontal overflow. On phones, the pipeline collapses to dots, the case-file previews appear inline, and the cursor-only effects turn off.
