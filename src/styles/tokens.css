@@ -1,0 +1,48 @@
+/* Design tokens — "build console" palette: graphite ink, warm paper, signal vermilion. */
+:root {
+  --ink: #0b0c0e;
+  --ink-1: #101114;
+  --ink-2: #15171b;
+  --ink-3: #1d2025;
+  --line: rgba(236, 231, 222, 0.09);
+  --line-2: rgba(236, 231, 222, 0.16);
+  --paper: #ece7de;
+  --paper-2: #c9c4ba;
+  --mute: #8a877f;
+  --mute-2: #5f5d58;
+
+  --signal: #ff5a2b;       /* build / action */
+  --signal-soft: rgba(255, 90, 43, 0.14);
+  --ok: #6fe3a5;           /* passed */
+  --ok-soft: rgba(111, 227, 165, 0.12);
+  --select: #4f8cff;       /* design-tool selection */
+  --select-soft: rgba(79, 140, 255, 0.14);
+  --amber: #ffc46b;
+  --violet: #b9a2ff;
+
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --fs-mega: clamp(3.4rem, 11.2vw, 11.5rem);
+  --fs-h1: clamp(2.8rem, 7.4vw, 7.4rem);
+  --fs-h2: clamp(2.2rem, 5.2vw, 5rem);
+  --fs-h3: clamp(1.35rem, 2.2vw, 2rem);
+  --fs-lede: clamp(1.08rem, 1.45vw, 1.35rem);
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-mono: 0.78rem;
+
+  --gutter: clamp(16px, 4.2vw, 64px);
+  --maxw: 1440px;
+  --topbar-h: 64px;
+  --radius: 4px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur: 0.9s;
+}
+
+@media (max-width: 720px) {
+  :root { --topbar-h: 56px; }
+}
