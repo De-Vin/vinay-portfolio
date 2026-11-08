@@ -1,8 +1,37 @@
 # Pixels in. Production out.
 
-The portfolio of **Vinay Avvaru**, Software Engineer (Hyderabad). It's built with React and Vite, uses no UI framework and no templates, and has two runtime dependencies (`react`, `react-dom`).
+[![Deploy to GitHub Pages](https://github.com/De-Vin/vinay-portfolio/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/De-Vin/vinay-portfolio/actions/workflows/deploy-pages.yml)
+![React 19](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
+![Vite 7](https://img.shields.io/badge/Vite-7-646cff?logo=vite&logoColor=white)
+![Node 20.19+](https://img.shields.io/badge/Node-20.19%2B-339933?logo=node.js&logoColor=white)
+
+The portfolio of **Vinay Avvaru**, Software Engineer based in Hyderabad, India. It's built with React 19 and Vite 7, uses no UI framework and no templates, and has just two runtime dependencies (`react`, `react-dom`).
+
+**Live site:** https://de-vin.github.io/vinay-portfolio/ (deployed by GitHub Actions on every push to `main`)
 
 ![Hero](public/og-image.png)
+
+## About me
+
+I'm a front-end-focused software engineer who turns Figma designs into production web applications. I currently build the 4Healths suite of healthcare apps, and previously worked on the insurance platforms (Channel360, Paisaplan). I started out in Chemical Engineering before switching to software.
+
+- **Core stack:** React, Vue.js, JavaScript, TypeScript, HTML/CSS, shadcn/ui, Material UI
+- **Also:** Node.js, REST & GraphQL, Keycloak, Form.io, Jest, React Testing Library, Git, CI/CD
+- **Resume:** [Vinay_Avvaru_Software_Engineer.pdf](public/resume/Vinay_Avvaru_Software_Engineer.pdf)
+- **Find me:** [GitHub](https://github.com/De-Vin) · [LinkedIn](https://www.linkedin.com/in/vinay-avvaru) · [saivinai9050@gmail.com](mailto:saivinai9050@gmail.com)
+
+### Featured work
+
+| Project | What it is | Role | Period |
+|---|---|---|---|
+| **4Healths** | Four healthcare web apps built from scratch (Vue.js, React, shadcn/ui) | Software Engineer | Dec 2024 – Present |
+| **Keycloak Multitenancy & RBAC** | Multi-tenant auth, custom Keycloak themes and role-based access control | Lead | Dec 2024 – Present |
+| **Channel360** | Web application for insurance agents (React, JavaScript) | Associate Software Engineer | Jan – Dec 2024 |
+| **Paisaplan** | Digital insurance platform (React, JavaScript) | Associate Software Engineer | Jan – Dec 2024 |
+| **Node.js v14 → v20** | Runtime upgrade across six major versions, resolving compatibility issues | Lead | 2024 |
+| **Awgment × Form.io** | Custom forms, workflows and user management for an in-house platform | Software Engineer Intern | Aug – Dec 2023 |
+
+These are company projects, so their source isn't public. The full case files are on the site.
 
 ---
 
@@ -40,6 +69,8 @@ The top bar is a live pipeline. The stage you're reading is `running` and earlie
 Requires **Node 20.19+** (Node 22 recommended — there's an `.nvmrc`).
 
 ```bash
+git clone https://github.com/De-Vin/vinay-portfolio.git
+cd vinay-portfolio
 nvm use
 ```
 
@@ -88,7 +119,7 @@ A browser cannot send email by itself. The form posts to a third-party form serv
 | **EmailJS** | 200 emails/month | Service ID, Template ID, Public Key |
 | **mailto** (fallback) | — | nothing; it opens the visitor's email app with the message prefilled |
 
-**If no provider is configured, the form automatically uses mailto.** That's the state it ships in, so the form works from day one. The button reads "Open in email app" and the success message says so honestly.
+**If no provider is configured, the form automatically uses mailto.** (`config.js` defaults the provider to `formspree`, but with no Form ID set it falls back to mailto.) That's the state it ships in, so the form works from day one. The button reads "Open in email app" and the success message says so honestly.
 
 ### Option A: Formspree
 
@@ -140,16 +171,17 @@ Go to **Add new site → Import from Git**. Use build command `npm run build` an
 ### Cloudflare Pages
 Use framework preset **Vite** (build `npm run build`, output `dist`), and add the `VITE_…` variables.
 
-### GitHub Pages (workflow included)
-1. Push this repo to GitHub.
-2. Go to **Settings → Pages → Source** and choose **GitHub Actions**.
-3. Under **Settings → Secrets and variables → Actions → Variables**, add `VITE_FORMSPREE_ID` (or the EmailJS variables).
-4. Push to `main`. [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) builds with `BASE_PATH=/<repo-name>/` and publishes the site.
+### GitHub Pages (current setup, workflow included)
+This repo deploys to **https://de-vin.github.io/vinay-portfolio/**.
+
+1. Go to **Settings → Pages → Source** and choose **GitHub Actions**.
+2. Under **Settings → Secrets and variables → Actions → Variables**, add `VITE_FORMSPREE_ID` (or the EmailJS variables).
+3. Push to `main` (or run the workflow manually). [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) builds with `BASE_PATH=/vinay-portfolio/` (taken from the repo name) and publishes the site.
 
 If you use a custom domain on Pages, change `BASE_PATH` in the workflow to `/`.
 
 ### Before going live
-- [ ] Replace `https://vinay-avvaru.dev` with your real domain in `src/config.js`, `index.html` (canonical, Open Graph, JSON-LD), `public/robots.txt` and `public/sitemap.xml`.
+- [ ] Replace the placeholder `https://vinay-avvaru.dev` with the real URL (e.g. `https://de-vin.github.io/vinay-portfolio/` or a custom domain) in `src/config.js`, `index.html` (canonical, Open Graph, JSON-LD), `public/robots.txt` and `public/sitemap.xml`.
 - [ ] Configure Formspree or EmailJS, then send yourself a test enquiry.
 - [ ] Add live or GitHub links to any projects that have public versions.
 - [ ] Optional: regenerate `public/og-image.png` (1200×630) if you change the hero.
@@ -177,3 +209,11 @@ public/                  ← resume PDF, favicon, OG image, robots, sitemap
 - **Accessibility.** The site has semantic landmarks and a skip link. Dialogs (case file, palette) trap focus, close with Esc and return focus to what opened them. Everything works from the keyboard. Split-text headings expose their plain text to screen readers. Under `prefers-reduced-motion`, all motion is disabled and the boot sequence is skipped.
 - **SEO.** The page has a title and description, canonical URL, Open Graph and Twitter cards, `Person` JSON-LD, robots.txt, a sitemap and a `<noscript>` summary.
 - **Responsive.** Tested at 390, 1024, 1200 and 1440 px wide with no horizontal overflow. On phones, the pipeline collapses to dots, the case-file previews appear inline, and the cursor-only effects turn off.
+
+---
+
+## License & contact
+
+© Vinay Avvaru. The code is here for reference; please don't republish the content, resume or design as your own.
+
+Questions or opportunities? Email [saivinai9050@gmail.com](mailto:saivinai9050@gmail.com) or reach out on [LinkedIn](https://www.linkedin.com/in/vinay-avvaru).
